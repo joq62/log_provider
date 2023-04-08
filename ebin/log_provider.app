@@ -1,4 +1,4 @@
-{application,log,
+{application,log_provider,
              [{description,"An OTP library"},
               {vsn,"0.1.0"},
               {registered,[]},
