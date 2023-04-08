@@ -5,9 +5,12 @@ all:
 	rm -rf common sd api;
 	rm -rf Mnesia.* logs;
 	rebar3 compile;
+	mkdir ebin;
+	rebar3 compile;	
+	cp _build/default/lib/*/ebin/* ebin;
 	cp src/*.api /home/joq62/erlang/infra/api_repo;
-	rm -rf _build*;
-	git add  *;
+	rm -rf _build;
+	git add  -f *;
 	git commit -m $(m);
 	git push;
 	echo Ok there you go!make
