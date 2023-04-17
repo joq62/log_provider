@@ -17,7 +17,6 @@
 
 %% --------------------------------------------------------------------
 -define(SERVER,?MODULE).
--define(MAX_LOG_LENGTH,100).
 
 
 -export([init/1, handle_call/3,handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -27,6 +26,9 @@
 		notice=[],
 		warning=[],
 		alert=[],
+		main_log_dir,
+		provider_log_dir,
+		log_file_path,
 		log_file,
 		max_log_length
 	
@@ -55,11 +57,16 @@
 init([]) ->
     {ok,MainLogDir}=application:get_env(main_log_dir),
     {ok,ProviderLogDir}=application:get_env(provider_log_dir),
+    {ok,LogFile}=application:get_env(log_file),
     {ok,LogFilePath}=application:get_env(log_file_path),
     {ok,MaxLogLength}=application:get_env(max_log_length),
     
-    lib_log:create_logfile(MainLogDir,ProviderLogDir,LogFilePath),
-    {ok, #state{max_log_length=MaxLogLength}
+    {ok, #state{
+		main_log_dir=MainLogDir,
+		provider_log_dir=ProviderLogDir,
+		log_file_path=LogFilePath,
+		log_file=LogFile,
+		max_log_length=MaxLogLength},0
     }.
 
 %% --------------------------------------------------------------------
@@ -237,6 +244,15 @@ handle_cast(_Msg, State) ->
 %%          {noreply, State, Timeout} |
 %%          {stop, Reason, State}            (terminate/2 is called)
 %% --------------------------------------------------------------------
+handle_info(timeout, State) ->
+    Result=lib_log:create_logfile(State#state.main_log_dir,
+				  State#state.provider_log_dir,
+				  State#state.log_file,
+				  State#state.log_file_path,
+				  State#state.max_log_length),
+    log:notice("Server started ",Result,{node(),self(),?MODULE,?FUNCTION_NAME,?LINE,erlang:system_time(millisecond)}),
+    {noreply, State};
+
 handle_info(_Info, State) ->
     %rpc:cast(node(),log,log,[?Log_ticket("unmatched info",[Info])]),
     {noreply, State}.

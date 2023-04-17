@@ -12,7 +12,7 @@
 -module(lib_log).    
  
 -export([
-	 create_logfile/3,
+	 create_logfile/5,
 	 parse/1,
 	 create_logger/1
 	]).
@@ -29,9 +29,10 @@
 %% @spec
 %% @end
 %%--------------------------------------------------------------------
-create_logfile(MainLogDir,ProviderLogDir,LogFilePath)->
+create_logfile(MainLogDir,ProviderLogDir,LogFile,LogFilePath,MaxLogLength)->
     R1=file:make_dir(MainLogDir),
     R2=file:make_dir(ProviderLogDir),
+    kuk=LogFilePath,
     R3=create_logger(LogFilePath),
     {ok,[R1,R2,R3]}.
 
