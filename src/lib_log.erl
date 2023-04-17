@@ -32,13 +32,14 @@
 create_logfile(MainLogDir,ProviderLogDir,LogFile,LogFilePath,MaxLogLength)->
     R1=file:make_dir(MainLogDir),
     R2=file:make_dir(ProviderLogDir),
-    case filelib:is_file(LogFilePath) of
-	false->
-	    file:write_file(LogFilePath," ");
-	true->
-	    ok
-    end,
-    R3=create_logger(LogFilePath),
+   % case filelib:is_file(LogFilePath) of
+%	false->
+%	    file:write_file(LogFilePath," ");
+%	true->
+%%%%%	    ok
+   % end,
+ %   R3=create_logger(LogFilePath),
+    R3=create_logger(LogFile),
     {ok,[R1,R2,R3]}.
 
 %%--------------------------------------------------------------------
