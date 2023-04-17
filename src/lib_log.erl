@@ -32,7 +32,6 @@
 create_logfile(MainLogDir,ProviderLogDir,LogFile,LogFilePath,MaxLogLength)->
     R1=file:make_dir(MainLogDir),
     R2=file:make_dir(ProviderLogDir),
-    kuk=LogFilePath,
     R3=create_logger(LogFilePath),
     {ok,[R1,R2,R3]}.
 
