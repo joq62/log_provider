@@ -60,7 +60,7 @@ init([]) ->
     {ok,LogFile}=application:get_env(log_file),
     {ok,LogFilePath}=application:get_env(log_file_path),
     {ok,MaxLogLength}=application:get_env(max_log_length),
-    
+    io:format("dbg ~p~n",[{MainLogDir,ProviderLogDir,LogFilePath,MaxLogLength,?MODULE,?LINE}]),
     {ok, #state{
 		main_log_dir=MainLogDir,
 		provider_log_dir=ProviderLogDir,
@@ -245,15 +245,18 @@ handle_cast(_Msg, State) ->
 %%          {stop, Reason, State}            (terminate/2 is called)
 %% --------------------------------------------------------------------
 handle_info(timeout, State) ->
+    io:format("dbg ~p~n",[{timeout,?MODULE,?LINE}]),
     Result=lib_log:create_logfile(State#state.main_log_dir,
 				  State#state.provider_log_dir,
 				  State#state.log_file,
 				  State#state.log_file_path,
 				  State#state.max_log_length),
+    io:format("dbg Result ~p~n",[{Result,?MODULE,?LINE}]),
     log:notice("Server started ",Result,{node(),self(),?MODULE,?FUNCTION_NAME,?LINE,erlang:system_time(millisecond)}),
     {noreply, State};
 
-handle_info(_Info, State) ->
+handle_info(Info, State) ->
+    io:format("dbg unmatched signal ~p~n",[{Info,?MODULE,?LINE}]),
     %rpc:cast(node(),log,log,[?Log_ticket("unmatched info",[Info])]),
     {noreply, State}.
 
