@@ -112,7 +112,7 @@ create_logger(LogFile)->
 					   msg,"\n"
 					  ]}}) of
 		       {error,Reason}->
-			   {error,["Error when creating LogFile :",Reason,?MODULE,?LINE]};
+			   {error,["Error when creating LogFile :",LogFile,Reason,?MODULE,?LINE]};
 		       ok-> 
 			   ok
 		   end
