@@ -38,8 +38,8 @@ create_logfile(MainLogDir,ProviderLogDir,LogFile,LogFilePath,MaxLogLength)->
 %	true->
 %%%%%	    ok
    % end,
- %   R3=create_logger(LogFilePath),
-    R3=create_logger(LogFile),
+    R3=create_logger(LogFilePath),
+ 
     {ok,[R1,R2,R3]}.
 
 %%--------------------------------------------------------------------
@@ -107,17 +107,17 @@ create_logger(LogFile)->
 					max_no_bytes =>1000*100,
 					filesync_repeat_interval => 1000},
 			    formatter => {logger_formatter,
-					  [
-					   timestamp," | ",
-					   level," | ",
-					   sender_node," | ",
-					   sender_pid," | ",
-					   sender_module," | ",
-					   sender_function," | ",
-					   sender_line," | ",
-					   data," | ",
-					   msg,"\n"
-					  ]}}) of
+					    #{ template => [
+							    timestamp," | ",
+							    level," | ",
+							    sender_node," | ",
+							    sender_pid," | ",
+							    sender_module," | ",
+							    sender_function," | ",
+							    sender_line," | ",
+							    data," | ",
+							    msg,"\n"
+							   ]}}}) of
 		       {error,Reason}->
 			   {error,["Error when creating LogFile :",LogFile,Reason,?MODULE,?LINE]};
 		       ok-> 
