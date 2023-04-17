@@ -38,5 +38,5 @@ eunit:
 	mkdir test_ebin;
 	mkdir api;
 	cp src/*.api api;
-	erlc -I api -I /home/joq62/erlang/infra/api_repo -o test_ebin test/*.erl;
+	erlc -I api -I /home/joq62/erlang/infra/api_repo -I include -D eunit -o test_ebin test/*.erl;
 	erl -pa _build/default/lib/*/* -pa test_ebin -sname do_test -run $(m) start $(a) $(b) -setcookie $(c)

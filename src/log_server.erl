@@ -15,15 +15,9 @@
 %% Include files
 %% --------------------------------------------------------------------
 
-
 %% --------------------------------------------------------------------
 -define(SERVER,?MODULE).
 -define(MAX_LOG_LENGTH,100).
-
--define(MainLogDir,"logs").
--define(ProviderLogDir,"logs/kube").
--define(LogFile,"kube.log").
--define(LogFilePath,"logs/kube/kube.log").
 
 
 -export([init/1, handle_call/3,handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -33,7 +27,8 @@
 		notice=[],
 		warning=[],
 		alert=[],
-		log_file
+		log_file,
+		max_log_length
 	
 	       }).
 
@@ -58,8 +53,13 @@
 %%          {stop, Reason}
 %% --------------------------------------------------------------------
 init([]) ->
-    lib_log:create_logfile(?MainLogDir,?ProviderLogDir,?LogFilePath),
-    {ok, #state{}
+    {ok,MainLogDir}=application:get_env(main_log_dir),
+    {ok,ProviderLogDir}=application:get_env(provider_log_dir),
+    {ok,LogFilePath}=application:get_env(log_file_path),
+    {ok,MaxLogLength}=application:get_env(max_log_length),
+    
+    lib_log:create_logfile(MainLogDir,ProviderLogDir,LogFilePath),
+    {ok, #state{max_log_length=MaxLogLength}
     }.
 
 %% --------------------------------------------------------------------
@@ -153,7 +153,7 @@ handle_cast({debug,Msg,Data,{SenderNode,SenderPid,Module,FunctionName,Line,TimeS
 			       sender_data=>Data}),
     Len=length(State#state.debug),
     if
-	Len<?MAX_LOG_LENGTH->
+	Len<State#state.max_log_length->
 	    NewState=State#state{debug=[{TimeStamp,SenderNode,SenderPid,Module,FunctionName,Line,Data,MsgAsString}|State#state.debug]};
 	true->
 	    Templist=lists:delete(lists:last(State#state.notice),State#state.debug),
@@ -174,7 +174,7 @@ handle_cast({notice,Msg,Data,{SenderNode,SenderPid,Module,FunctionName,Line,Time
     Len=length(State#state.notice),
 						%   io:format("notice Len= ~p~n",[{Len,?MODULE,?LINE}]),
     if
-	Len<?MAX_LOG_LENGTH->
+	Len<State#state.max_log_length->
 	    NewState=State#state{notice=[{TimeStamp,SenderNode,SenderPid,Module,FunctionName,Line,Data,MsgAsString}|State#state.notice]};
 	true->
 	    Templist=lists:delete(lists:last(State#state.notice),State#state.notice),
@@ -195,7 +195,7 @@ handle_cast({warning,Msg,Data,{SenderNode,SenderPid,Module,FunctionName,Line,Tim
     Len=length(State#state.warning),
 						%   io:format("notice Len= ~p~n",[{Len,?MODULE,?LINE}]),
     if
-	Len<?MAX_LOG_LENGTH->
+	Len<State#state.max_log_length->
 	    NewState=State#state{warning=[{TimeStamp,SenderNode,SenderPid,Module,FunctionName,Line,Data,MsgAsString}|State#state.warning]};
 	true->
 	    Templist=lists:delete(lists:last(State#state.notice),State#state.warning),
@@ -216,7 +216,7 @@ handle_cast({alert,Msg,Data,{SenderNode,SenderPid,Module,FunctionName,Line,TimeS
     Len=length(State#state.alert),
 						%   io:format("notice Len= ~p~n",[{Len,?MODULE,?LINE}]),
     if
-	Len<?MAX_LOG_LENGTH->
+	Len<State#state.max_log_length->
 	    NewState=State#state{alert=[{TimeStamp,SenderNode,SenderPid,Module,FunctionName,Line,Data,MsgAsString}|State#state.alert]};
 	true->
 	    Templist=lists:delete(lists:last(State#state.notice),State#state.alert),
